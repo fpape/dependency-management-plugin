@@ -109,11 +109,14 @@ class PomDependencyManagementConfigurer {
 
     private void configureDependencies(Node dependencies) {
         this.dependencyManagement.explicitManagedVersions { groupId, artifactId, version,
-                exclusions ->
+                classifier, exclusions ->
             def dependency = dependencies.appendNode('dependency')
             dependency.appendNode('groupId').value = groupId
             dependency.appendNode('artifactId').value = artifactId
             dependency.appendNode('version').value = version
+            if (classifier) {
+                dependency.appendNode('classifier').value = classifier
+            }
             if (exclusions) {
                 def exclusionsNode = dependency.appendNode('exclusions')
                 exclusions.each { exclusion ->

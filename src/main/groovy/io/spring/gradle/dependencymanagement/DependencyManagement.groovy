@@ -116,8 +116,10 @@ class DependencyManagement {
 
     void explicitManagedVersions(Closure closure) {
         explicitVersions.each { key, value ->
-            def (groupId, artifactId) = key.split(':')
-            closure.call(groupId, artifactId, value, explicitExclusions.exclusionsForDependency(key))
+            def splitted = key.split(':') as List
+            splitted << ''
+            def (groupId, artifactId, classifier) = splitted
+            closure.call(groupId, artifactId, value, classifier, explicitExclusions.exclusionsForDependency(key))
         }
     }
 

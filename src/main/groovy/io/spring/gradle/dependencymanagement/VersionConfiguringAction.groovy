@@ -72,8 +72,13 @@ class VersionConfiguringAction implements Action<DependencyResolveDetails> {
 
     private static boolean isDependencyOnLocalProject(Project project,
             DependencyResolveDetails details) {
-        project.rootProject.allprojects
-                .collect { "$it.group:$it.name" as String }
-                .contains("$details.requested.group:$details.requested.name" as String)
+        def matcher = { String expectedGroup, String expectedName, Project p ->
+            p.group.toString() == expectedGroup && p.name == expectedName
+        }.curry(details.requested.group, details.requested.name)
+
+        project
+                .rootProject
+                .allprojects
+                .any(matcher)
     }
 }
