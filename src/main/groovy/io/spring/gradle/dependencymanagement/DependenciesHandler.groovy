@@ -42,10 +42,11 @@ class DependenciesHandler {
     def dependencySet(Map setSpecification, Closure closure) {
         def group = setSpecification['group']
         def version = setSpecification['version']
+        def classifier = setSpecification['classifier']
 
         if (hasText(group) && hasText(version)) {
             closure.setResolveStrategy(Closure.DELEGATE_FIRST)
-            closure.delegate = new DependencySetHandler(group, version)
+            closure.delegate =  hasText(classifier) ? new DependencySetHandler(group, version) : new DependencySetHandler(group, version, classifier)
             closure.call()
         }
         else {
@@ -63,21 +64,23 @@ class DependenciesHandler {
 
     def dependency(def id, Closure closure) {
         if (id instanceof CharSequence) {
-            def (group, name, version) = id.split(':')
-            configureDependency(group, name, version, closure)
+            def splitted = id.split(':') as List
+            splitted << ''
+            def (group, name, version, classifier) = splitted
+            configureDependency(group, name, version, classifier, closure)
         }
         else {
-            configureDependency(id['group'], id['name'], id['version'], closure)
+            configureDependency(id['group'], id['name'], id['version'], id['classifier'], closure)
         }
     }
 
-    private def configureDependency(String group, String name, String version, Closure closure) {
+    private def configureDependency(String group, String name, String version, String classifier, Closure closure) {
         def excludeHandler = new DependencyExcludeHandler()
         if (closure) {
             closure.delegate = excludeHandler;
             closure.call()
         }
-        container.addExplicitManagedVersion(configuration, group, name, version,
+        container.addExplicitManagedVersion(configuration, group, name, version, classifier,
                 excludeHandler.exclusions)
     }
 
@@ -91,9 +94,17 @@ class DependenciesHandler {
 
         private final String version
 
+        private final String classifier
+
         DependencySetHandler(String group, String version) {
             this.group = group
             this.version = version
+        }
+
+        DependencySetHandler(String group, String version, String classifier) {
+            this.group = group
+            this.version = version
+            this.classifier = classifier
         }
 
         def entry(String module) {
@@ -106,7 +117,7 @@ class DependenciesHandler {
                 closure.delegate = excludeHandler;
                 closure.call();
             }
-            container.addExplicitManagedVersion(configuration, group, module, version,
+            container.addExplicitManagedVersion(configuration, group, module, version, classifier,
                     excludeHandler.exclusions)
         }
     }

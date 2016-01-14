@@ -82,8 +82,8 @@ class DependencyManagement {
         bomProperties
     }
 
-    void addManagedVersion(String group, String name, String version) {
-        versions[createKey(group, name)] = version
+    void addManagedVersion(String group, String name, String version, String classifier = null) {
+        versions[createKey(group, name, classifier)] = version
     }
 
     void addImplicitManagedVersion(String group, String name, String version) {
@@ -92,11 +92,16 @@ class DependencyManagement {
 
     void addExplicitManagedVersion(String group, String name, String version, List<String>
             exclusions) {
-        def key = createKey(group, name)
+        addExplicitManagedVersion(group, name, version, null, exclusions)
+    }
+
+    void addExplicitManagedVersion(String group, String name, String version, String classifier, List<String>
+            exclusions) {
+        def key = createKey(group, name, classifier)
         explicitVersions[key] = version
         explicitExclusions.add(key, exclusions)
         allExclusions.add(key, exclusions)
-        addManagedVersion(group, name, version)
+        addManagedVersion(group, name, version, classifier)
     }
 
     String getManagedVersion(String group, String name) {
@@ -116,8 +121,12 @@ class DependencyManagement {
         }
     }
 
-    private String createKey(String group, String name) {
-        "$group:$name"
+    private String createKey(String group, String name, String classifier = null) {
+        if (classifier) {
+            "$group:$name:$classifier"
+        }else {
+            "$group:$name"
+        }
     }
 
     Exclusions getExclusions() {
