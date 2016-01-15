@@ -52,7 +52,7 @@ class VersionConfiguringAction implements Action<DependencyResolveDetails> {
         if (!isDependencyOnLocalProject(project, details)) {
             String version = dependencyManagementContainer.
                     getManagedVersion(configuration, details.requested.group,
-                            details.requested.name)
+                            details.requested.name, details.requested.version)
             if (version) {
                 log.info("Using version '{}' for dependency '{}'", version,
                         details.requested)

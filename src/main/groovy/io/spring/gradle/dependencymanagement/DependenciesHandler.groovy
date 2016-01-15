@@ -46,7 +46,7 @@ class DependenciesHandler {
 
         if (hasText(group) && hasText(version)) {
             closure.setResolveStrategy(Closure.DELEGATE_FIRST)
-            closure.delegate =  hasText(classifier) ? new DependencySetHandler(group, version) : new DependencySetHandler(group, version, classifier)
+            closure.delegate = new DependencySetHandler(group, version, classifier)
             closure.call()
         }
         else {
@@ -95,11 +95,6 @@ class DependenciesHandler {
         private final String version
 
         private final String classifier
-
-        DependencySetHandler(String group, String version) {
-            this.group = group
-            this.version = version
-        }
 
         DependencySetHandler(String group, String version, String classifier) {
             this.group = group
